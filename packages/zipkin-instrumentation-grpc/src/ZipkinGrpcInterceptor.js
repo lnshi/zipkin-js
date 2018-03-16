@@ -61,10 +61,8 @@ class ZipkinGrpcInterceptor {
       return;
     }
 
-    let ctxSampled = grpcMetadataFromIncomingCtx.get('x-b3-sampled')[0];
-    if (!(ctxSampled in ['0', '1'])) {
-      ctxSampled = '0';
-    }
+    let ctxSampledAsString = grpcMetadataFromIncomingCtx.get('x-b3-sampled')[0];
+    let ctxSampled = ctxSampledAsString === '1' || ctxSampledAsString === 'true';
 
     const ctxTraceInfo = new TraceId({
       traceId: new Some(ctxTraceId),
