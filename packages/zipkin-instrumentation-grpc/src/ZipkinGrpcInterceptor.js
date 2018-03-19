@@ -3,7 +3,7 @@ const grpc = require('grpc');
 const {
   TraceId,
   Annotation,
-  option: {Some}
+  option: {Some, None}
 } = require('zipkin');
 
 class ZipkinGrpcInterceptor {
@@ -61,14 +61,11 @@ class ZipkinGrpcInterceptor {
       return;
     }
 
-    let ctxSampledAsString = grpcMetadataFromIncomingCtx.get('x-b3-sampled')[0];
-    let ctxSampled = ctxSampledAsString === '1' || ctxSampledAsString === 'true';
-
     const ctxTraceInfo = new TraceId({
       traceId: new Some(ctxTraceId),
       parentId: new Some(ctxParentId),
       spanId: ctxSpanId,
-      sampled: new Some(ctxSampled)
+      sampled: ZipkinGrpcInterceptor._determineSampledValue(grpcMetadataFromIncomingCtx.get('x-b3-sampled')[0])
     });
 
     this.tracer.scoped(() => {
@@ -98,6 +95,12 @@ class ZipkinGrpcInterceptor {
     });
   }
 
+  static _determineSampledValue(ctxSampledAsString) {
+    if (!ctxSampledAsString) {
+      return None;
+    }
+    return new Some(ctxSampledAsString === '1' || ctxSampledAsString === 'true');
+  }
 }
 
 module.exports = ZipkinGrpcInterceptor;
