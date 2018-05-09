@@ -1,5 +1,6 @@
-# zipkin-instrumentation-grpc
+# zipkin-instrumentation-grpc-wrd
 
+This lib contains just a bugfix for the sample flag on the library created by @lnshi's: zipkin-instrumentation-grpc.
 This lib is the interceptor for [Zipkin](https://github.com/openzipkin/zipkin) to intercept your [GRPC](https://github.com/grpc/grpc) calls(unary/stream).
 
 ## Project test status
@@ -138,6 +139,3 @@ This lib is the interceptor for [Zipkin](https://github.com/openzipkin/zipkin) t
   }
   ```
 
-## Maintainer
-
-Feel free to `@lnshi` on Github for any issue of this lib 🙂
