@@ -1,6 +1,6 @@
 {
-  "name": "zipkin-instrumentation-grpc",
-  "version": "0.0.6",
+  "name": "zipkin-instrumentation-grpc-wrd",
+  "version": "0.0.1",
   "description": "Interceptor for instrumenting GRPC calls.",
   "main": "lib/index.js",
   "scripts": {
