@@ -1,4 +1,5 @@
 const grpc = require('grpc');
+const randomTraceId = require('../../zipkin/src/tracer/randomTraceId');
 
 const {
   TraceId,
@@ -50,16 +51,20 @@ class ZipkinGrpcInterceptor {
       return;
     }
 
-    const [ctxTraceId, ctxParentId, ctxSpanId] = [
+    const [ctxTraceId, ctxParentId, ctxIncomingSpanId] = [
       grpcMetadataFromIncomingCtx.get('x-b3-traceid')[0],
       grpcMetadataFromIncomingCtx.get('x-b3-parentspanid')[0],
       grpcMetadataFromIncomingCtx.get('x-b3-spanid')[0]
     ];
 
-    if (!ctxTraceId || !ctxParentId || !ctxSpanId) {
+    if (!ctxTraceId || !ctxParentId || !ctxIncomingSpanId) {
       // Should fail silently here, without possibly breaking the actual service call stack.
       return;
     }
+
+    let ctxNewSpanId = randomTraceId();
+    let metadata = grpcMetadataFromIncomingCtx;
+    metadata.set('X-B3-SpanId', ctxNewSpanId);
 
     let ctxSampled = grpcMetadataFromIncomingCtx.get('x-b3-sampled')[0];
     if (!(ctxSampled in ['0', '1'])) {
@@ -69,7 +74,7 @@ class ZipkinGrpcInterceptor {
     const ctxTraceInfo = new TraceId({
       traceId: new Some(ctxTraceId),
       parentId: new Some(ctxParentId),
-      spanId: ctxSpanId,
+      spanId: ctxNewSpanId,
       sampled: new Some(ctxSampled)
     });
 
@@ -82,6 +87,8 @@ class ZipkinGrpcInterceptor {
       this.tracer.recordAnnotation(new Annotation.ServerRecv());
       this.tracer.recordAnnotation(new Annotation.LocalAddr({}));
     });
+
+    return metadata;
   }
 
   // Call this right before the GRPC server has finished all respond.
