@@ -58,7 +58,7 @@ This lib is the interceptor for [Zipkin](https://github.com/openzipkin/zipkin) t
   // Apparently you need to initialize the `ZIPKIN_GRPC_INTCP` for each of your distributed GRPC service.
 
   // Do this at the first line upon the GRPC server received the call from the GRPC client.
-  global.ZIPKIN_GRPC_INTCP.uponServerRecvGrpcCall({
+  const metadata = global.ZIPKIN_GRPC_INTCP.uponServerRecvGrpcCall({
     serviceName: process.env.MS_SERVICE_TAG,
     grpcMetadataFromIncomingCtx: call.metadata
   });
